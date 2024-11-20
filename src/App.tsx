@@ -189,12 +189,12 @@ export const App: React.FC = () => {
       return;
     }
 
-    if (newTitle !== todo.title) {
-      editTodo({ title: newTitle }, todo.id);
+    if (newTitle === todo.title) {
+      setIsOpenInput(false);
+      setTempTodo(null);
     }
 
-    setTempTodo(null);
-    setIsOpenInput(false);
+    editTodo({ title: newTitle }, todo.id);
   }
 
   function handleKeyUp(e: KeyboardEvent<HTMLInputElement>) {
