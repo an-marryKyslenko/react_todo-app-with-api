@@ -1,11 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 
-import React, {
-  useState,
-  useRef,
-  useEffect,
-} from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import * as todosServise from './api/todos';
 import { UserWarning } from './UserWarning';
 import { Todo, TodoTitleOrCompleted } from './types/Todo';
@@ -22,7 +18,6 @@ export const App: React.FC = () => {
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const mainInputRef = useRef<HTMLInputElement>(null);
-
 
   // #region loading todos
   const loadingTodos = () => {

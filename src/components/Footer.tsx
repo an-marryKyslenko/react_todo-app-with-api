@@ -1,25 +1,24 @@
-import React from 'react'
-import { SelectedBy } from '../types/SelectedBy'
-import classNames from 'classnames'
-import { Todo } from '../types/Todo'
+import React from 'react';
+import { SelectedBy } from '../types/SelectedBy';
+import classNames from 'classnames';
+import { Todo } from '../types/Todo';
 
 type Props = {
-  selectedBy: SelectedBy,
-  todos: Todo[],
-  setSelectedBy: (selectedBy: SelectedBy) => void
-  onClear: () => void
-}
+  selectedBy: SelectedBy;
+  todos: Todo[];
+  setSelectedBy: (selectedBy: SelectedBy) => void;
+  onClear: () => void;
+};
 export const Footer: React.FC<Props> = ({
   selectedBy,
   setSelectedBy,
   todos,
-  onClear
+  onClear,
 }) => {
-
-
   const activeTodosLength = todos.reduce((sum: number, currTodo: Todo) => {
     return currTodo.completed ? sum : sum + 1;
   }, 0);
+
   return (
     <footer className="todoapp__footer" data-cy="Footer">
       <span className="todo-count" data-cy="TodosCounter">
@@ -52,7 +51,5 @@ export const Footer: React.FC<Props> = ({
         Clear completed
       </button>
     </footer>
-  )
-}
-
-
+  );
+};

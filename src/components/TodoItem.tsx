@@ -1,71 +1,76 @@
-import React, { useRef, useState } from 'react'
-import { Todo, TodoTitleOrCompleted } from '../types/Todo'
+/* eslint-disable jsx-a11y/label-has-associated-control */
+import React, { useRef, useState } from 'react';
+import { Todo, TodoTitleOrCompleted } from '../types/Todo';
 
 type Props = {
-  todo: Todo
-  tempTodo?: Todo | null,
-  editCheckbox?: (data: TodoTitleOrCompleted, id: number) => void
-  setTempTodo?: React.Dispatch<React.SetStateAction<Todo | null>>
-  deleteTodo?: (todo: Todo) => void
-  onEdit?: (data: TodoTitleOrCompleted, id: number) => void
-}
+  todo: Todo;
+  tempTodo?: Todo | null;
+  editCheckbox?: (data: TodoTitleOrCompleted, id: number) => void;
+  setTempTodo?: React.Dispatch<React.SetStateAction<Todo | null>>;
+  deleteTodo?: (todo: Todo) => void;
+  onEdit?: (data: TodoTitleOrCompleted, id: number) => void;
+};
 export const TodoItem: React.FC<Props> = ({
   todo,
-  tempTodo= null,
-  editCheckbox= () => {},
+  tempTodo = null,
+  editCheckbox = () => {},
   setTempTodo = () => {},
-  deleteTodo= () => {},
-  onEdit= () => {},
+  deleteTodo = () => {},
+  onEdit = () => {},
 }) => {
   const [isOpenInput, setIsOpenInput] = useState(false);
 
   const editInputRef = useRef<HTMLInputElement>(null);
 
-  function handleDubleClick(todo: Todo) {
+  function handleDubleClick(currTodo: Todo) {
     setIsOpenInput(true);
-    setTempTodo(todo);
+    setTempTodo(currTodo);
 
     setTimeout(() => {
       editInputRef.current?.focus();
     }, 0);
   }
 
-  function editTitle(e: React.FormEvent<HTMLFormElement>, todo: Todo) {
+  function editTitle(e: React.FormEvent<HTMLFormElement>, currTodo: Todo) {
     e.preventDefault();
 
     const form = new FormData(e.currentTarget);
     const newTitle = form.get('newTitle') as string;
 
     if (!newTitle) {
-      deleteTodo(todo);
+      deleteTodo(currTodo);
+
       return;
     }
 
-    if (newTitle === todo.title) {
+    if (newTitle === currTodo.title) {
       setTempTodo(null);
       setIsOpenInput(false);
 
       return;
     }
 
-    onEdit({ title: newTitle.trim() }, todo.id);
+    onEdit({ title: newTitle.trim() }, currTodo.id);
   }
 
-  function handleTitleBlur(e: React.ChangeEvent<HTMLInputElement>, todo: Todo) {
+  function handleTitleBlur(
+    e: React.ChangeEvent<HTMLInputElement>,
+    currTodo: Todo,
+  ) {
     const newTitle = e.target.value.trim();
 
     if (!newTitle) {
-      deleteTodo(todo);
+      deleteTodo(currTodo);
 
       return;
     }
 
-    if (newTitle === todo.title) {
+    if (newTitle === currTodo.title) {
       setIsOpenInput(false);
       setTempTodo(null);
     }
 
-    onEdit({ title: newTitle }, todo.id);
+    onEdit({ title: newTitle }, currTodo.id);
   }
 
   function handleKeyUp(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -83,9 +88,7 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={tempTodo?.completed || todo.completed}
-          onChange={e =>
-            editCheckbox({ completed: e.target.checked }, todo.id)
-          }
+          onChange={e => editCheckbox({ completed: e.target.checked }, todo.id)}
         />
       </label>
 
@@ -122,8 +125,6 @@ export const TodoItem: React.FC<Props> = ({
           </button>
         </>
       )}
-
     </>
-  )
-}
-
+  );
+};

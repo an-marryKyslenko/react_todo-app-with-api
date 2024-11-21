@@ -1,15 +1,15 @@
-import classNames from 'classnames'
-import { FC } from 'react'
+import classNames from 'classnames';
+import { FC } from 'react';
 
-type Props ={
-  isActive?: boolean
-}
-const Loader: FC<Props> = ({isActive = true}) => {
+type Props = {
+  isActive?: boolean;
+};
+const Loader: FC<Props> = ({ isActive = true }) => {
   return (
     <div
       data-cy="TodoLoader"
       className={classNames('modal overlay', {
-        'is-active': isActive
+        'is-active': isActive,
       })}
     >
       <div
@@ -20,7 +20,7 @@ const Loader: FC<Props> = ({isActive = true}) => {
       />
       <div className="loader" />
     </div>
-  )
-}
+  );
+};
 
-export default Loader
+export default Loader;

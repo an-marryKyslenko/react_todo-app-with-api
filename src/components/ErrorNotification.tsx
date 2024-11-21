@@ -1,13 +1,13 @@
-import classNames from 'classnames'
-import React from 'react'
+import classNames from 'classnames';
+import React from 'react';
 
 type Props = {
-  errorMessage: string,
-  setErrorMessage: (message: string) => void
-}
+  errorMessage: string;
+  setErrorMessage: (message: string) => void;
+};
 const ErrorNotification: React.FC<Props> = ({
   errorMessage,
-  setErrorMessage
+  setErrorMessage,
 }) => {
   return (
     <div
@@ -27,7 +27,7 @@ const ErrorNotification: React.FC<Props> = ({
       />
       {errorMessage}
     </div>
-  )
-}
+  );
+};
 
-export default ErrorNotification
+export default ErrorNotification;
