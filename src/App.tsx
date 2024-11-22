@@ -17,10 +17,15 @@ export const App: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDisabletField, setIsDisabletField] = useState(false);
+  const [title, setTitle] = useState('');
   const mainInputRef = useRef<HTMLInputElement>(null);
 
+  const [loadingTodos, setLoadingTodos] = useState<Record<number, boolean>>({});
+
   // #region loading todos
-  const loadingTodos = () => {
+  useEffect(() => {
+    mainInputRef.current?.focus();
     todosServise
       .getTodos()
       .then(setTodos)
@@ -28,15 +33,53 @@ export const App: React.FC = () => {
         setErrorMessage('Unable to load todos');
         setTimeout(() => setErrorMessage(''), 3000);
       });
-  };
-
-  useEffect(() => {
-    loadingTodos();
   }, []);
 
   if (!todosServise.USER_ID) {
     return <UserWarning />;
   }
+  // #endregion
+
+  // #region create Todo
+  const createTodo = () => {
+    if (!title.trim()) {
+      setErrorMessage('Title should not be empty');
+      setTimeout(() => setErrorMessage(''), 3000);
+
+      return;
+    }
+
+    setIsDisabletField(true);
+
+    setTempTodo({
+      id: 0,
+      title,
+      userId: todosServise.USER_ID,
+      completed: false,
+    });
+
+    return todosServise
+      .createTodos({
+        title: title.trim(),
+        userId: todosServise.USER_ID,
+        completed: false,
+      })
+      .then(result => {
+        setTodos(prev => [...prev, result]);
+        setTitle('');
+      })
+      .catch(() => {
+        setErrorMessage('Unable to add a todo');
+        setTimeout(() => setErrorMessage(''), 3000);
+      })
+      .finally(() => {
+        setTempTodo(null);
+        setIsDisabletField(false);
+        setTimeout(() => {
+          mainInputRef.current?.focus();
+        }, 300);
+      });
+  };
   // #endregion
 
   // #region edit Todo
@@ -59,6 +102,14 @@ export const App: React.FC = () => {
         setIsLoading(false);
       });
   }
+
+  function editCheckbox(data: TodoTitleOrCompleted, todoId: number) {
+    const todoIndex = todos.findIndex(todo => todo.id === todoId);
+
+    setTempTodo(todos[todoIndex]);
+    editTodo(data, todoId);
+  }
+
   // #endregion
 
   // #region clear button
@@ -70,46 +121,40 @@ export const App: React.FC = () => {
     return result;
   }, []);
 
-  async function clearComplitedTodos() {
-    setIsLoading(true);
+  const clearComplitedTodos = () => {
+    const loadingState: Record<number, boolean> = {};
 
-    const deletedTodos = todos
-      .filter(todo => complitedTodosIds.includes(todo.id))
-      .map(todo =>
-        todosServise
-          .deleteTodo(todo.id)
-          .then(() => ({
-            status: 'fulfilled' as const,
-            id: todo.id,
-          }))
-          .catch(() => {
-            setErrorMessage('Unable to delete a todo');
-            setTimeout(() => setErrorMessage(''), 3000);
-          })
-          .finally(() => {
-            setTimeout(() => {
-              mainInputRef.current?.focus();
-            }, 1);
-          }),
-      );
+    complitedTodosIds.forEach(id => {
+      loadingState[id] = true;
+    });
+    setLoadingTodos(loadingState);
 
-    const results = await Promise.all(deletedTodos);
+    const deletedTodos = complitedTodosIds.map(id =>
+      todosServise
+        .deleteTodo(id)
+        .then(() => setTodos(prev => prev.filter(todo => todo.id !== id)))
+        .catch(() => {
+          setErrorMessage('Unable to delete a todo');
+          setTimeout(() => setErrorMessage(''), 3000);
+        })
+        .finally(() => {
+          setLoadingTodos(prev => {
+            const newState = { ...prev };
 
-    setTodos(prev =>
-      prev.filter(todo => {
-        const fulfilledResult = results
-          .filter(item => item?.status === 'fulfilled')
-          .map(item => item?.id);
+            delete newState[id]; // Видаляємо з об'єкта, коли завантаження завершено
 
-        return !fulfilledResult.includes(todo.id);
-      }),
+            return newState;
+          });
+          mainInputRef.current?.focus();
+        }),
     );
-    setIsLoading(false);
-  }
+
+    Promise.all(deletedTodos);
+  };
   // #endregion
 
   // #region delete Todo
-  function deleteTodo(deletedTodo: Todo) {
+  const deleteTodo = (deletedTodo: Todo) => {
     setTempTodo(deletedTodo);
     setIsLoading(true);
 
@@ -125,11 +170,59 @@ export const App: React.FC = () => {
       })
       .finally(() => {
         setIsLoading(false);
-
         mainInputRef.current?.focus();
       });
+  };
+  // #endregion
+
+  // #region toggle all
+  function toggleAll() {
+    const loadingState: Record<number, boolean> = {};
+
+    const activeTodos = todos.filter(todo => !todo.completed);
+    const todosToToggle = todos.some(todo => !todo.completed)
+      ? activeTodos
+      : todos;
+
+    todosToToggle.forEach(todo => {
+      loadingState[todo.id] = true;
+    });
+    setLoadingTodos(loadingState);
+
+    const allToggled = todosToToggle.map(todo => {
+      return todosServise
+        .editTodo({ completed: !todo.completed }, todo.id)
+        .then(updatedTodo => {
+          setTodos(prev =>
+            prev.map(prevTodo =>
+              prevTodo.id === todo.id
+                ? { ...prevTodo, ...updatedTodo }
+                : prevTodo,
+            ),
+          );
+        })
+        .catch(() => {
+          setErrorMessage('Unable to update a todo');
+          setTimeout(() => setErrorMessage(''), 3000);
+        })
+        .finally(() => {
+          setLoadingTodos(prev => {
+            const newState = { ...prev };
+
+            delete newState[todo.id];
+
+            return newState;
+          });
+        });
+    });
+
+    Promise.all(allToggled);
   }
   // #endregion
+
+  function handleSelectedBy(value: SelectedBy) {
+    setSelectedBy(value);
+  }
 
   return (
     <div className="todoapp">
@@ -137,12 +230,14 @@ export const App: React.FC = () => {
 
       <div className="todoapp__content">
         <Header
+          onCreate={createTodo}
+          toggleAll={toggleAll}
           mainInputRef={mainInputRef}
           todos={todos}
-          setIsLoading={setIsLoading}
-          setTodos={setTodos}
-          setTempTodo={setTempTodo}
           setErrorMessage={setErrorMessage}
+          isDisabletField={isDisabletField}
+          title={title}
+          setTitle={setTitle}
         />
 
         {todos.length > 0 && (
@@ -155,11 +250,13 @@ export const App: React.FC = () => {
               setTempTodo={setTempTodo}
               onDelete={deleteTodo}
               onEdit={editTodo}
+              editCheckbox={editCheckbox}
+              loadingTodos={loadingTodos}
             />
 
             <Footer
               selectedBy={selectedBy}
-              setSelectedBy={setSelectedBy}
+              onSelect={handleSelectedBy}
               onClear={clearComplitedTodos}
               todos={todos}
             />

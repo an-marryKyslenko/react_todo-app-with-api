@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Loader from './Loader';
 import { Todo, TodoTitleOrCompleted } from '../types/Todo';
 import classNames from 'classnames';
@@ -13,7 +13,10 @@ type Props = {
   isLoading: boolean;
   setTempTodo: React.Dispatch<React.SetStateAction<Todo | null>>;
   onEdit: (data: TodoTitleOrCompleted, id: number) => void;
+  editCheckbox: (data: TodoTitleOrCompleted, id: number) => void;
+  loadingTodos: Record<number, boolean>;
 };
+
 export const TodoList: React.FC<Props> = ({
   todos,
   selectedBy,
@@ -22,17 +25,40 @@ export const TodoList: React.FC<Props> = ({
   setTempTodo,
   onDelete,
   onEdit,
+  editCheckbox,
+  loadingTodos,
 }) => {
+  const [isOpenInput, setIsOpenInput] = useState(false);
   const filteredTodos = todos.filter(todo =>
     selectedBy === SelectedBy.completed ? todo.completed : !todo.completed,
   );
 
   // #region edit todo
-  function editCheckbox(data: TodoTitleOrCompleted, todoId: number) {
-    const todoIndex = todos.findIndex(todo => todo.id === todoId);
+  function handleDubleClick(currTodo: Todo) {
+    setIsOpenInput(true);
+    setTempTodo(currTodo);
+  }
 
-    setTempTodo(todos[todoIndex]);
-    onEdit(data, todoId);
+  function editTitle(title: string, currTodo: Todo) {
+    if (!title.trim()) {
+      onDelete(currTodo);
+
+      return;
+    }
+
+    if (title.trim() === currTodo.title) {
+      setTempTodo(null);
+      setIsOpenInput(false);
+
+      return;
+    }
+
+    onEdit({ title: title.trim() }, currTodo.id);
+  }
+
+  function handleKeyUp() {
+    setIsOpenInput(false);
+    setTempTodo(null);
   }
 
   // #endregion
@@ -40,7 +66,9 @@ export const TodoList: React.FC<Props> = ({
     <section className="todoapp__main" data-cy="TodoList">
       {(selectedBy === SelectedBy.all ? todos : filteredTodos).map(todo => {
         const isActiveLoader =
-          (tempTodo?.id === todo.id && isLoading) || (isLoading && !tempTodo);
+          loadingTodos[todo.id] ||
+          (tempTodo?.id === todo.id && isLoading) ||
+          (isLoading && !tempTodo);
 
         return (
           <div
@@ -53,10 +81,12 @@ export const TodoList: React.FC<Props> = ({
             <TodoItem
               todo={todo}
               editCheckbox={editCheckbox}
-              tempTodo={tempTodo}
-              setTempTodo={setTempTodo}
               deleteTodo={onDelete}
-              onEdit={onEdit}
+              onDubleClick={handleDubleClick}
+              onTitle={editTitle}
+              onEsc={handleKeyUp}
+              isCompleted={tempTodo?.completed || todo.completed}
+              isOpenForm={tempTodo?.id === todo.id && isOpenInput}
             />
 
             <Loader isActive={isActiveLoader} />
@@ -72,25 +102,6 @@ export const TodoList: React.FC<Props> = ({
             completed: tempTodo.completed,
           })}
         >
-          {/* <label className="todo__status-label">
-            <input
-              data-cy="TodoStatus"
-              type="checkbox"
-              className="todo__status"
-              defaultChecked={tempTodo.completed}
-            />
-          </label>
-
-          <span data-cy="TodoTitle" className="todo__title">
-            {tempTodo.title}
-          </span>
-          <button
-            type="button"
-            className="todo__remove"
-            data-cy="TodoDelete"
-          >
-            ×
-          </button> */}
           <TodoItem todo={tempTodo} />
           <Loader />
         </div>

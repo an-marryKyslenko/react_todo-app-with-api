@@ -1,10 +1,10 @@
 import classNames from 'classnames';
-import { FC } from 'react';
+import { FC, memo } from 'react';
 
 type Props = {
   isActive?: boolean;
 };
-const Loader: FC<Props> = ({ isActive = true }) => {
+const Loader: FC<Props> = memo(({ isActive = true }) => {
   return (
     <div
       data-cy="TodoLoader"
@@ -21,6 +21,8 @@ const Loader: FC<Props> = ({ isActive = true }) => {
       <div className="loader" />
     </div>
   );
-};
+});
 
 export default Loader;
+
+Loader.displayName = 'Loader';

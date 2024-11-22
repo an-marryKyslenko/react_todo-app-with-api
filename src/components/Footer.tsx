@@ -6,12 +6,12 @@ import { Todo } from '../types/Todo';
 type Props = {
   selectedBy: SelectedBy;
   todos: Todo[];
-  setSelectedBy: (selectedBy: SelectedBy) => void;
+  onSelect: (selectedBy: SelectedBy) => void;
   onClear: () => void;
 };
 export const Footer: React.FC<Props> = ({
   selectedBy,
-  setSelectedBy,
+  onSelect,
   todos,
   onClear,
 }) => {
@@ -33,7 +33,7 @@ export const Footer: React.FC<Props> = ({
             className={classNames('filter__link', {
               selected: selectedBy === value,
             })}
-            onClick={() => setSelectedBy(value)}
+            onClick={() => onSelect(value)}
             data-cy={`FilterLink${value}`}
           >
             {value}
