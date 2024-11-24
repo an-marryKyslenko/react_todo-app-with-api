@@ -12,6 +12,7 @@ type Props = {
   title: string;
   setTitle: (t: string) => void;
 };
+
 const Header: React.FC<Props> = ({
   todos,
   mainInputRef,
@@ -21,14 +22,12 @@ const Header: React.FC<Props> = ({
   title,
   setTitle,
 }) => {
-  // #region create and delete todo
-  function createTodo(e: React.FormEvent<HTMLFormElement>) {
+  const createTodo = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     onCreate();
   }
 
-  // #endregion
   return (
     <header className="todoapp__header">
       {todos.length > 0 && (

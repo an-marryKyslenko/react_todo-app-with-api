@@ -4,6 +4,7 @@ import { FC, memo } from 'react';
 type Props = {
   isActive?: boolean;
 };
+
 const Loader: FC<Props> = memo(({ isActive = true }) => {
   return (
     <div

@@ -33,13 +33,12 @@ export const TodoList: React.FC<Props> = ({
     selectedBy === SelectedBy.completed ? todo.completed : !todo.completed,
   );
 
-  // #region edit todo
-  function handleDubleClick(currTodo: Todo) {
+  const  handleDubleClick = (currTodo: Todo) => {
     setIsOpenInput(true);
     setTempTodo(currTodo);
   }
 
-  function editTitle(title: string, currTodo: Todo) {
+  const  editTitle = (title: string, currTodo: Todo) =>{
     if (!title.trim()) {
       onDelete(currTodo);
 
@@ -56,12 +55,11 @@ export const TodoList: React.FC<Props> = ({
     onEdit({ title: title.trim() }, currTodo.id);
   }
 
-  function handleKeyUp() {
+  const handleKeyUp = () => {
     setIsOpenInput(false);
     setTempTodo(null);
   }
 
-  // #endregion
   return (
     <section className="todoapp__main" data-cy="TodoList">
       {(selectedBy === SelectedBy.all ? todos : filteredTodos).map(todo => {

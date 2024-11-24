@@ -23,7 +23,6 @@ export const App: React.FC = () => {
 
   const [loadingTodos, setLoadingTodos] = useState<Record<number, boolean>>({});
 
-  // #region loading todos
   useEffect(() => {
     mainInputRef.current?.focus();
     todosServise
@@ -38,9 +37,7 @@ export const App: React.FC = () => {
   if (!todosServise.USER_ID) {
     return <UserWarning />;
   }
-  // #endregion
 
-  // #region create Todo
   const createTodo = () => {
     if (!title.trim()) {
       setErrorMessage('Title should not be empty');
@@ -80,10 +77,8 @@ export const App: React.FC = () => {
         }, 300);
       });
   };
-  // #endregion
 
-  // #region edit Todo
-  function editTodo(data: TodoTitleOrCompleted, todoId: number) {
+  const  editTodo = (data: TodoTitleOrCompleted, todoId: number) => {
     setIsLoading(true);
 
     todosServise
@@ -103,16 +98,13 @@ export const App: React.FC = () => {
       });
   }
 
-  function editCheckbox(data: TodoTitleOrCompleted, todoId: number) {
+  const editCheckbox = (data: TodoTitleOrCompleted, todoId: number) => {
     const todoIndex = todos.findIndex(todo => todo.id === todoId);
 
     setTempTodo(todos[todoIndex]);
     editTodo(data, todoId);
   }
 
-  // #endregion
-
-  // #region clear button
   const complitedTodosIds = todos.reduce((result: number[], curTodo: Todo) => {
     if (curTodo.completed) {
       result.push(curTodo.id);
@@ -151,9 +143,7 @@ export const App: React.FC = () => {
 
     Promise.all(deletedTodos);
   };
-  // #endregion
 
-  // #region delete Todo
   const deleteTodo = (deletedTodo: Todo) => {
     setTempTodo(deletedTodo);
     setIsLoading(true);
@@ -173,10 +163,8 @@ export const App: React.FC = () => {
         mainInputRef.current?.focus();
       });
   };
-  // #endregion
 
-  // #region toggle all
-  function toggleAll() {
+  const toggleAll = () => {
     const loadingState: Record<number, boolean> = {};
 
     const activeTodos = todos.filter(todo => !todo.completed);
@@ -218,9 +206,8 @@ export const App: React.FC = () => {
 
     Promise.all(allToggled);
   }
-  // #endregion
 
-  function handleSelectedBy(value: SelectedBy) {
+  const handleSelectedBy = (value: SelectedBy) => {
     setSelectedBy(value);
   }
 

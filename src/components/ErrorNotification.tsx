@@ -5,6 +5,7 @@ type Props = {
   errorMessage: string;
   setErrorMessage: (message: string) => void;
 };
+
 const ErrorNotification: React.FC<Props> = ({
   errorMessage,
   setErrorMessage,

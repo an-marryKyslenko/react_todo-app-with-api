@@ -25,7 +25,7 @@ export const TodoItem: React.FC<Props> = ({
 }) => {
   const editInputRef = useRef<HTMLInputElement>(null);
 
-  function handleDubleClick() {
+  const handleDubleClick = () => {
     onDubleClick(todo);
 
     setTimeout(() => {
@@ -33,7 +33,7 @@ export const TodoItem: React.FC<Props> = ({
     }, 0);
   }
 
-  function editTitle(e: React.FormEvent<HTMLFormElement>) {
+  const editTitle = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const form = new FormData(e.currentTarget);
@@ -42,13 +42,13 @@ export const TodoItem: React.FC<Props> = ({
     onTitle(newTitle, todo);
   }
 
-  function handleTitleBlur(e: React.ChangeEvent<HTMLInputElement>) {
+  const handleTitleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value.trim();
 
     onTitle(newTitle, todo);
   }
 
-  function handleKeyUp(e: React.KeyboardEvent<HTMLInputElement>) {
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Escape') {
       onEsc();
     }
